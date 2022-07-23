@@ -1,0 +1,29 @@
+/Loads and prints first 2 numbers (1 and 0)
+        Output
+        Load 		One
+        Output
+
+/ Main Loop
+Loop,	Load 		Lim			/Counts down from lim (in this case, will execute the code 23 times)
+		    Subt 		One
+        Store 		Lim
+        Skipcond 	800
+        Halt
+
+Load 		Temp1		/ Product of temp1 and temp2 is output and stored into foo
+        Add 		Temp2
+        Output
+        Store 		Foo
+        Load 		Temp2		/ Variables are rearranged
+        Store 		Temp1
+        Load 		Foo
+        Store 		Temp2
+        Jump 		Loop
+        
+/Variables
+One, 		  DEC 1
+Temp1,		DEC 0
+Temp2,		DEC 1
+Foo,		  DEC 0
+/If Lim is any higher than 23, returns an OverFlow Error
+Lim,		  DEC 23
