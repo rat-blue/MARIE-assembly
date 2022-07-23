@@ -1,0 +1,309 @@
+Jump 	EnteraGuess
+/ HOW TO PLAY:
+/ Set Input and Output to Unicode
+/ Enter your guess letter by letter (Remember that it is case sensitive)
+/ You have 6 guesses
+/ At the end of your guess, enter a semicolon(;) to mark that it is the end of the guessed word
+/ If the guess is not 5 characters, the program will either print "Your word is too long" or "Your word is too short" and halt
+/ If the guess contains a letter but it is in the wrong spot, it will be printed in lowercase
+/ If the guess contains a letter and it is in the right spot, it will be printed in UPPERCASE
+/ If the guess does not contain a letter, it will be printed as an underscore (_)
+
+/ Some test cases are labelled below
+/ 		Word: WORDS
+/ 		Test words and their output:
+/ 		SWORD:	sword
+/ 		WORDS:	WORDS
+/ 		SLEEP:	s____
+/ 		CRANE:	_r___
+/ 		WORLD:	WOR_d
+/		  sword:  _____ (Case sensitive)
+
+
+/ To change the word, Simply edit the array below (ensure that a 0 value is at the end)
+
+ArrayLength, ADR Words
+Container, ADR Words     
+Start, ADR Words
+Words, HEX 57
+       HEX 4F
+       HEX 52
+       HEX 44
+       HEX 53
+       HEX 0   
+       
+////////////////////////////////////////////////////////////////////////////////////////////////
+
+/Input loop Into UserInput
+Loop, 	Input
+		StoreI 	UserInput
+    Subt 	Sc
+		Skipcond 800		/ Checks if end of word input
+		Jump 	TestLength
+		Load 	Count1
+		Add 	One
+		Store 	Count1		/ Simple input into array loop
+		Load 	UserInput
+		Add 	One
+		Store 	UserInput
+		Jump 	Loop
+
+/Tests length, if 5, pass through, if not, too short
+TestLength, Load 	EnterGuessArray
+			Subt 	Fifteen
+			Store 	EnterGuessArray
+			Load 	UserInput
+			Subt 	Len
+			Store UserInput
+			Load 	Len
+			Subt 	Count1
+			Skipcond 000	/Will check if too long
+			Jump 	TestLength2
+			Jump 	ErrorTooLong1
+            
+/Will check if too Short
+TestLength2, Load 	Len
+			 Subt 	Count1
+			 Skipcond 800
+			 Jump 	Main
+			 Jump 	ErrorTooShort1
+
+
+
+
+
+/Start of the program, Loads the first letter, if its zero (end of array), it checks if the guess count has 
+/hit the limit of 6. If not, it continues.
+Main,	LoadI 	Start
+		Skipcond 400		
+		Jump 	  Cont
+		Load 	  Start
+		Subt 	  Len
+		Store 	Start
+		Load 	  CR
+		Output
+    Load 	  CountEnd
+		Subt 	  One
+		Store 	CountEnd
+		Skipcond 800			/ If counter has hit zero, goes to GameOver subroutine
+		Jump 	  GameOver
+    Load 	  UserInput
+		Subt 	  Len
+		Store 	UserInput
+    Load 	  Count1
+		Subt	  Len
+		Store 	Count1
+		Jump  	EnteraGuess
+        
+Cont, 	LoadI 	UserInput		/ Stores Indirect address into real address for convenience to use
+		Store 	C
+		Load 	  UserInput		/ Adds one to Address
+		Add 	  One
+		Store   UserInput
+		LoadI 	Start			/ Loads value in array
+		Subt  	C				/ Compares to user input, if correct then the result is zero. 
+		Store 	Temp1			/ Stores it back into our temp file
+		Load 	  Start
+		Add 	  One
+		Store 	Start
+        
+/Loads the previously used temp file that Container either 0 or not 0
+Load 	Temp1
+Skipcond 400
+Jump 	IncorrectContainer 				/ If NOT zero (Not the same letter), jump to IncorrectContainer
+Jump 	Right							/ If zero (same letter), jump to correct
+
+
+
+IncorrectContainer,  LoadI Container	/ Tests to see if the input matches the letter currently being looked at
+			Subt 	C
+            Skipcond 400
+            Jump 	Continue			
+			Load 	C				/ If it does not match, runs through the rest of the word until it hits a match
+			Add 	ToUpper2
+            Output				
+        	  Load 	Container		/ Resets the Container address to before it was added to, if this does not
+        	  Subt 	MyCounter		/ happen, then the program will start the search from the previous location 
+        	  Store 	Container		/ of the last guess.
+        	  Load	MyCounter			
+        	  Subt 	MyCounter		/ Resets the MyCounter  
+        	  Store 	MyCounter     
+        	  Jump 	Main
+            
+Continue,	Load 	Container		/ Cycles through the letters
+			Add 	One
+            Store 	Container
+            Load 	MyCounter
+            Add 	One
+            Store 	MyCounter
+            LoadI 	Container		/ If it doesnt contain, jumps back to IncorrectContainer to continue searching
+            Skipcond 400
+            Jump 	IncorrectContainer
+            Load 	Container		
+       		  Subt 	MyCounter
+        	  Store 	Container
+            Load 	MyCounter		/ Resets the counter, ensuring the next letter starts from the start,
+            Subt 	MyCounter		/ and not simply where the last letter left off
+            Store 	MyCounter           
+            Load 	Underscr		/ Outputs underscore if no letters are correct
+			      Output
+            Jump 	Main
+            
+Right,    	Load 	C				/ Will load the input letter (if correct)
+			      Output					/ Outputs
+            Jump 	Main			/ Jumps back to start and repeats
+
+UserInput, Adr ArrayIn
+ArrayIn,Hex 0
+		    Hex 0
+        Hex 0
+        Hex 0
+        Hex 0
+        Hex 0
+        Hex 0
+
+/ Errors and Messages
+/ Too Short Error
+ErrorTooShort1, LoadI 	TooShort1
+				Skipcond 800
+				Jump Main
+				Output
+				Load 	TooShort1
+				Add 	One
+				Store 	TooShort1
+				Jump 	ErrorTooShort1
+
+TooShort1, Adr Array7
+Array7, Hex 59 
+        Hex 6F 
+        Hex 75 
+        Hex 72 
+        Hex 20 
+        Hex 77 
+        Hex 6F 
+        Hex 72 
+        Hex 64 
+        Hex 20 
+        Hex 69 
+        Hex 73 
+        Hex 20 
+        Hex 74 
+        Hex 6F 
+        Hex 6F 
+        Hex 20 
+        Hex 73 
+        Hex 68 
+        Hex 6F 
+        Hex 72 
+        Hex 74 
+        Hex 0A
+        Hex 0
+        
+/Too Long Error
+ErrorTooLong1,  LoadI 	TooLong1
+				Skipcond 800
+				Jump Main
+				Output
+
+				Load 	TooLong1
+				Add 	One
+				Store 	TooLong1
+				Jump 	ErrorTooLong1
+
+TooLong1, Adr Array9
+Array9, Hex 59 
+        Hex 6F 
+        Hex 75 
+        Hex 72 
+        Hex 20 
+        Hex 77 
+        Hex 6F 
+        Hex 72 
+        Hex 64 
+        Hex 20 
+        Hex 69 
+        Hex 73 
+        Hex 20 
+        Hex 74 
+        Hex 6F 
+        Hex 6F 
+        Hex 20 
+        Hex 6C
+        Hex 6F
+        Hex 6E
+        Hex 67
+        Hex 0A
+        Hex 0
+       
+/ Game Over!
+GameOver, 	LoadI 	GameOverArray
+			Skipcond 800
+			Halt
+			Output
+			Load 	GameOverArray
+			Add 	One
+			Store 	GameOverArray
+			Jump 	GameOver
+
+GameOverArray, Adr Array4
+Array4, Hex 47
+        Hex 61
+        Hex 6D
+        Hex 65
+        Hex 20
+        Hex 4F
+        Hex 76
+        Hex 65
+        Hex 72
+        Hex 21
+        Hex 0
+        
+/ Enter Guess
+EnteraGuess, LoadI 	EnterGuessArray
+			 Skipcond 800
+			 Jump 	Loop
+			 Output
+			 Load 	EnterGuessArray
+			 Add 	One
+		 	 Store 	EnterGuessArray
+		 	 Jump 	EnteraGuess
+
+EnterGuessArray, Adr Array5
+Array5, Hex 45
+        Hex 6E
+        Hex 74
+        Hex 65
+        Hex 72
+        Hex 20
+        Hex 61
+        Hex 20
+        Hex 67
+        Hex 75
+        Hex 65
+        Hex 73
+		    Hex 73
+        Hex 3A
+        Hex 0A
+        Hex 0
+          
+                 
+          
+/ Variables
+Underscr, HEX 5f
+One, DEC 1
+C, HEX 0
+B, HEX 53
+Temp1, HEX 0
+Six, DEC 6
+Sc, HEX 3B
+CountEnd, DEC 6
+ToUpper2, HEX 20
+MyCounter, DEC 0
+Count1, DEC 0
+Fifteen, DEC 15
+CR,    HEX 0A
+Len, DEC 5
+
+
+		
+      
